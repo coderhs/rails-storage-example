@@ -1,0 +1,123 @@
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-8">File Uploads</h1>
+
+  <div id="flash">
+    <% if notice %>
+      <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+        <%= notice %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Upload Form -->
+  <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-8">
+    <h2 class="text-xl font-semibold mb-4">Upload a New File</h2>
+
+    <%= render "form", upload: Upload.new %>
+  </div>
+
+  <!-- Uploads Table -->
+  <div class="mb-8">
+    <h2 class="text-xl font-semibold mb-4">Uploaded Files</h2>
+    <div class="overflow-x-auto">
+      <table class="min-w-full bg-white shadow-md rounded">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="px-4 py-2 text-left">ID</th>
+            <th class="px-4 py-2 text-left">Name</th>
+            <th class="px-4 py-2 text-left">File</th>
+            <th class="px-4 py-2 text-left">Created At</th>
+            <th class="px-4 py-2 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="uploads">
+          <% @uploads.each do |upload| %>
+            <tr class="border-t" id="<%= dom_id(upload) %>">
+              <td class="px-4 py-2"><%= upload.id %></td>
+              <td class="px-4 py-2"><%= upload.name %></td>
+              <td class="px-4 py-2">
+                <% if upload.file.attached? %>
+                  <%= link_to upload.file.filename, rails_blob_path(upload.file, disposition: "attachment"), class: "text-blue-500 hover:underline" %>
+                <% end %>
+              </td>
+              <td class="px-4 py-2"><%= upload.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+              <td class="px-4 py-2">
+                <%= button_to "Delete", upload_path(upload), method: :delete, class: "bg-red-500 hover:bg-red-700 text-white text-sm py-1 px-2 rounded", data: { turbo_confirm: "Are you sure?" } %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Active Storage Attachments Table -->
+  <div class="mb-8">
+    <h2 class="text-xl font-semibold mb-4">Active Storage Attachments</h2>
+    <div class="overflow-x-auto">
+      <table class="min-w-full bg-white shadow-md rounded">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="px-4 py-2 text-left">ID</th>
+            <th class="px-4 py-2 text-left">Name</th>
+            <th class="px-4 py-2 text-left">Record Type</th>
+            <th class="px-4 py-2 text-left">Record ID</th>
+            <th class="px-4 py-2 text-left">Blob ID</th>
+            <th class="px-4 py-2 text-left">Created At</th>
+          </tr>
+        </thead>
+        <tbody id="attachments">
+          <% @uploads.each do |upload| %>
+            <% if upload.file.attached? %>
+              <% attachment = upload.file.attachment %>
+              <tr class="border-t" id="attachment_<%= attachment.id %>">
+                <td class="px-4 py-2"><%= attachment.id %></td>
+                <td class="px-4 py-2"><%= attachment.name %></td>
+                <td class="px-4 py-2"><%= attachment.record_type %></td>
+                <td class="px-4 py-2"><%= attachment.record_id %></td>
+                <td class="px-4 py-2"><%= attachment.blob_id %></td>
+                <td class="px-4 py-2"><%= attachment.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+              </tr>
+            <% end %>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Active Storage Blobs Table -->
+  <div class="mb-8">
+    <h2 class="text-xl font-semibold mb-4">Active Storage Blobs</h2>
+    <div class="overflow-x-auto">
+      <table class="min-w-full bg-white shadow-md rounded">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="px-4 py-2 text-left">ID</th>
+            <th class="px-4 py-2 text-left">Key</th>
+            <th class="px-4 py-2 text-left">Filename</th>
+            <th class="px-4 py-2 text-left">Content Type</th>
+            <th class="px-4 py-2 text-left">Byte Size</th>
+            <th class="px-4 py-2 text-left">Checksum</th>
+            <th class="px-4 py-2 text-left">Created At</th>
+          </tr>
+        </thead>
+        <tbody id="blobs">
+          <% @uploads.each do |upload| %>
+            <% if upload.file.attached? %>
+              <% blob = upload.file.blob %>
+              <tr class="border-t" id="blob_<%= blob.id %>">
+                <td class="px-4 py-2"><%= blob.id %></td>
+                <td class="px-4 py-2 text-xs font-mono"><%= truncate(blob.key, length: 20) %></td>
+                <td class="px-4 py-2"><%= blob.filename %></td>
+                <td class="px-4 py-2"><%= blob.content_type %></td>
+                <td class="px-4 py-2"><%= number_to_human_size(blob.byte_size) %></td>
+                <td class="px-4 py-2 text-xs font-mono"><%= truncate(blob.checksum, length: 15) %></td>
+                <td class="px-4 py-2"><%= blob.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+              </tr>
+            <% end %>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

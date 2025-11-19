@@ -1,0 +1,46 @@
+<%= turbo_stream.prepend "uploads" do %>
+  <tr class="border-t" id="<%= dom_id(@upload) %>">
+    <td class="px-4 py-2"><%= @upload.id %></td>
+    <td class="px-4 py-2"><%= @upload.name %></td>
+    <td class="px-4 py-2">
+      <% if @upload.file.attached? %>
+        <%= link_to @upload.file.filename, rails_blob_path(@upload.file, disposition: "attachment"), class: "text-blue-500 hover:underline" %>
+      <% end %>
+    </td>
+    <td class="px-4 py-2"><%= @upload.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+    <td class="px-4 py-2">
+      <%= button_to "Delete", upload_path(@upload), method: :delete, class: "bg-red-500 hover:bg-red-700 text-white text-sm py-1 px-2 rounded", data: { turbo_confirm: "Are you sure?" } %>
+    </td>
+  </tr>
+<% end %>
+
+<%= turbo_stream.prepend "attachments" do %>
+  <tr class="border-t" id="attachment_<%= @attachment.id %>">
+    <td class="px-4 py-2"><%= @attachment.id %></td>
+    <td class="px-4 py-2"><%= @attachment.name %></td>
+    <td class="px-4 py-2"><%= @attachment.record_type %></td>
+    <td class="px-4 py-2"><%= @attachment.record_id %></td>
+    <td class="px-4 py-2"><%= @attachment.blob_id %></td>
+    <td class="px-4 py-2"><%= @attachment.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+  </tr>
+<% end %>
+
+<%= turbo_stream.prepend "blobs" do %>
+  <tr class="border-t" id="blob_<%= @blob.id %>">
+    <td class="px-4 py-2"><%= @blob.id %></td>
+    <td class="px-4 py-2 text-xs font-mono"><%= truncate(@blob.key, length: 20) %></td>
+    <td class="px-4 py-2"><%= @blob.filename %></td>
+    <td class="px-4 py-2"><%= @blob.content_type %></td>
+    <td class="px-4 py-2"><%= number_to_human_size(@blob.byte_size) %></td>
+    <td class="px-4 py-2 text-xs font-mono"><%= truncate(@blob.checksum, length: 15) %></td>
+    <td class="px-4 py-2"><%= @blob.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+  </tr>
+<% end %>
+
+<%= turbo_stream.update "flash" do %>
+  <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+    File uploaded successfully.
+  </div>
+<% end %>
+
+<%= turbo_stream.replace "upload_form", partial: "form", locals: { upload: Upload.new } %>
