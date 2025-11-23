@@ -1,9 +1,8 @@
 <div class="container mx-auto px-4 py-8">
-  <h1 class="text-3xl font-bold mb-8">File Uploads</h1>
+  <h1 class="text-3xl font-bold mb-8">Products with Images</h1>
 
-  <div class="mb-4 space-x-4">
-    <%= link_to "Direct Upload (JavaScript) →", direct_upload_path, class: "text-blue-500 hover:underline font-semibold" %>
-    <%= link_to "Products with Images →", products_path, class: "text-blue-500 hover:underline font-semibold" %>
+  <div class="mb-4">
+    <%= link_to "← Back to Uploads", root_path, class: "text-blue-500 hover:underline" %>
   </div>
 
   <div id="flash">
@@ -14,41 +13,43 @@
     <% end %>
   </div>
 
-  <!-- Upload Form -->
+  <!-- Product Form -->
   <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-8">
-    <h2 class="text-xl font-semibold mb-4">Upload a New File</h2>
+    <h2 class="text-xl font-semibold mb-4">Add Images to Product</h2>
 
-    <%= render "form", upload: Upload.new %>
+    <%= render "form", product: @product, products: @products %>
   </div>
 
-  <!-- Uploads Table -->
+  <!-- Products List -->
   <div class="mb-8">
-    <h2 class="text-xl font-semibold mb-4">Uploaded Files</h2>
+    <h2 class="text-xl font-semibold mb-4">Products</h2>
+    <div id="products" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @products.each do |product| %>
+        <%= render partial: "product", locals: { product: product } %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Products Table -->
+  <div class="mb-8">
+    <h2 class="text-xl font-semibold mb-4">Products Table</h2>
     <div class="overflow-x-auto">
       <table class="min-w-full bg-white shadow-md rounded">
         <thead class="bg-gray-100">
           <tr>
             <th class="px-4 py-2 text-left">ID</th>
             <th class="px-4 py-2 text-left">Name</th>
-            <th class="px-4 py-2 text-left">File</th>
+            <th class="px-4 py-2 text-left">Images Count</th>
             <th class="px-4 py-2 text-left">Created At</th>
-            <th class="px-4 py-2 text-left">Actions</th>
           </tr>
         </thead>
-        <tbody id="uploads">
-          <% @uploads.each do |upload| %>
-            <tr class="border-t" id="<%= dom_id(upload) %>">
-              <td class="px-4 py-2"><%= upload.id %></td>
-              <td class="px-4 py-2"><%= upload.name %></td>
-              <td class="px-4 py-2">
-                <% if upload.file.attached? %>
-                  <%= link_to upload.file.filename, rails_blob_path(upload.file, disposition: "attachment"), class: "text-blue-500 hover:underline" %>
-                <% end %>
-              </td>
-              <td class="px-4 py-2"><%= upload.created_at.strftime("%Y-%m-%d %H:%M") %></td>
-              <td class="px-4 py-2">
-                <%= button_to "Delete", upload_path(upload), method: :delete, class: "bg-red-500 hover:bg-red-700 text-white text-sm py-1 px-2 rounded", data: { turbo_confirm: "Are you sure?" } %>
-              </td>
+        <tbody id="products_table">
+          <% @products.each do |product| %>
+            <tr class="border-t" id="product_row_<%= product.id %>">
+              <td class="px-4 py-2"><%= product.id %></td>
+              <td class="px-4 py-2"><%= product.name %></td>
+              <td class="px-4 py-2"><%= product.images.count %></td>
+              <td class="px-4 py-2"><%= product.created_at.strftime("%Y-%m-%d %H:%M") %></td>
             </tr>
           <% end %>
         </tbody>
@@ -72,9 +73,8 @@
           </tr>
         </thead>
         <tbody id="attachments">
-          <% @uploads.each do |upload| %>
-            <% if upload.file.attached? %>
-              <% attachment = upload.file.attachment %>
+          <% @products.each do |product| %>
+            <% product.images.each do |attachment| %>
               <tr class="border-t" id="attachment_<%= attachment.id %>">
                 <td class="px-4 py-2"><%= attachment.id %></td>
                 <td class="px-4 py-2"><%= attachment.name %></td>
@@ -107,9 +107,9 @@
           </tr>
         </thead>
         <tbody id="blobs">
-          <% @uploads.each do |upload| %>
-            <% if upload.file.attached? %>
-              <% blob = upload.file.blob %>
+          <% @products.each do |product| %>
+            <% product.images.each do |attachment| %>
+              <% blob = attachment.blob %>
               <tr class="border-t" id="blob_<%= blob.id %>">
                 <td class="px-4 py-2"><%= blob.id %></td>
                 <td class="px-4 py-2 text-xs font-mono"><%= truncate(blob.key, length: 20) %></td>

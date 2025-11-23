@@ -66,3 +66,5 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
+
+gem 'active_storage_dedup', github: 'coderhs/active_storage_dedup'

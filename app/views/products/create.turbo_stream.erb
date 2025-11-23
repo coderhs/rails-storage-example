@@ -1,0 +1,97 @@
+<%= turbo_stream.replace "product_form", partial: "form", locals: { product: Product.new, products: @products } %>
+
+<% if @was_new_product %>
+  <%= turbo_stream.prepend "products" do %>
+    <%= render partial: "product", locals: { product: @product } %>
+  <% end %>
+
+  <%= turbo_stream.prepend "products_table" do %>
+    <tr class="border-t" id="product_row_<%= @product.id %>">
+      <td class="px-4 py-2"><%= @product.id %></td>
+      <td class="px-4 py-2"><%= @product.name %></td>
+      <td class="px-4 py-2"><%= @product.images.count %></td>
+      <td class="px-4 py-2"><%= @product.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+    </tr>
+  <% end %>
+
+  <% @product.images.each do |attachment| %>
+    <% blob = attachment.blob %>
+    <%= turbo_stream.prepend "attachments" do %>
+      <tr class="border-t" id="attachment_<%= attachment.id %>">
+        <td class="px-4 py-2"><%= attachment.id %></td>
+        <td class="px-4 py-2"><%= attachment.name %></td>
+        <td class="px-4 py-2"><%= attachment.record_type %></td>
+        <td class="px-4 py-2"><%= attachment.record_id %></td>
+        <td class="px-4 py-2"><%= attachment.blob_id %></td>
+        <td class="px-4 py-2"><%= attachment.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+      </tr>
+    <% end %>
+
+    <%= turbo_stream.prepend "blobs" do %>
+      <tr class="border-t" id="blob_<%= blob.id %>">
+        <td class="px-4 py-2"><%= blob.id %></td>
+        <td class="px-4 py-2 text-xs font-mono"><%= truncate(blob.key, length: 20) %></td>
+        <td class="px-4 py-2"><%= blob.filename %></td>
+        <td class="px-4 py-2"><%= blob.content_type %></td>
+        <td class="px-4 py-2"><%= number_to_human_size(blob.byte_size) %></td>
+        <td class="px-4 py-2 text-xs font-mono"><%= truncate(blob.checksum, length: 15) %></td>
+        <td class="px-4 py-2"><%= blob.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+      </tr>
+    <% end %>
+  <% end %>
+
+  <%= turbo_stream.update "flash" do %>
+    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+      Product created successfully!
+    </div>
+  <% end %>
+<% else %>
+  <%= turbo_stream.update dom_id(@product) do %>
+    <%= render partial: "product", locals: { product: @product } %>
+  <% end %>
+
+  <%= turbo_stream.update "product_row_#{@product.id}" do %>
+    <tr class="border-t" id="product_row_<%= @product.id %>">
+      <td class="px-4 py-2"><%= @product.id %></td>
+      <td class="px-4 py-2"><%= @product.name %></td>
+      <td class="px-4 py-2"><%= @product.images.count %></td>
+      <td class="px-4 py-2"><%= @product.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+    </tr>
+  <% end %>
+
+  <%# Add new attachments and blobs that were just attached %>
+  <% if @new_attachments.present? %>
+    <% @new_attachments.each do |attachment| %>
+      <% blob = attachment.blob %>
+      <%= turbo_stream.prepend "attachments" do %>
+        <tr class="border-t" id="attachment_<%= attachment.id %>">
+          <td class="px-4 py-2"><%= attachment.id %></td>
+          <td class="px-4 py-2"><%= attachment.name %></td>
+          <td class="px-4 py-2"><%= attachment.record_type %></td>
+          <td class="px-4 py-2"><%= attachment.record_id %></td>
+          <td class="px-4 py-2"><%= attachment.blob_id %></td>
+          <td class="px-4 py-2"><%= attachment.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+        </tr>
+      <% end %>
+
+      <%= turbo_stream.prepend "blobs" do %>
+        <tr class="border-t" id="blob_<%= blob.id %>">
+          <td class="px-4 py-2"><%= blob.id %></td>
+          <td class="px-4 py-2 text-xs font-mono"><%= truncate(blob.key, length: 20) %></td>
+          <td class="px-4 py-2"><%= blob.filename %></td>
+          <td class="px-4 py-2"><%= blob.content_type %></td>
+          <td class="px-4 py-2"><%= number_to_human_size(blob.byte_size) %></td>
+          <td class="px-4 py-2 text-xs font-mono"><%= truncate(blob.checksum, length: 15) %></td>
+          <td class="px-4 py-2"><%= blob.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+        </tr>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <%= turbo_stream.update "flash" do %>
+    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+      Images added to product successfully!
+    </div>
+  <% end %>
+<% end %>
+

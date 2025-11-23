@@ -1,0 +1,21 @@
+<div class="bg-white shadow-md rounded p-6" id="<%= dom_id(product) %>">
+  <h3 class="font-semibold text-lg mb-2"><%= product.name %></h3>
+  <p class="text-sm text-gray-500 mb-4">Created: <%= product.created_at.strftime("%Y-%m-%d %H:%M") %></p>
+
+  <% if product.images.attached? %>
+    <div class="space-y-2">
+      <p class="text-sm font-medium text-gray-700">Images (<%= product.images.count %>):</p>
+      <div class="grid grid-cols-2 gap-2">
+        <% product.images.each do |image| %>
+          <div class="relative">
+            <%= image_tag image, class: "w-full h-24 object-cover rounded", alt: image.filename.to_s %>
+            <p class="text-xs text-gray-500 mt-1 truncate"><%= image.filename %></p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <p class="text-sm text-gray-400">No images attached</p>
+  <% end %>
+</div>
+

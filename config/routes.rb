@@ -11,5 +11,10 @@ Rails.application.routes.draw do
 
   resources :uploads, only: [:index, :create, :destroy]
 
+  get "direct_upload", to: "uploads#direct_upload", as: :direct_upload
+  post "direct_upload", to: "uploads#create_direct_upload", as: :create_direct_upload
+
+  resources :products, only: [:index, :create]
+
   root "uploads#index"
 end

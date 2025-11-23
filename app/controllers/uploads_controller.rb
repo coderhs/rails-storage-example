@@ -37,6 +37,29 @@ class UploadsController < ApplicationController
     end
   end
 
+  def direct_upload
+    @uploads = Upload.includes(file_attachment: :blob).order(created_at: :desc)
+  end
+
+  def create_direct_upload
+    @upload = Upload.new(upload_params)
+
+    if @upload.save
+      respond_to do |format|
+        format.json { render json: { success: true, upload: { id: @upload.id, name: @upload.name } }, status: :created }
+        format.html { redirect_to direct_upload_path, notice: "File uploaded successfully." }
+      end
+    else
+      respond_to do |format|
+        format.json { render json: { success: false, errors: @upload.errors.full_messages }, status: :unprocessable_entity }
+        format.html do
+          @uploads = Upload.includes(file_attachment: :blob).order(created_at: :desc)
+          render :direct_upload, status: :unprocessable_entity
+        end
+      end
+    end
+  end
+
   private
 
   def upload_params
